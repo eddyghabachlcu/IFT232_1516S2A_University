@@ -104,6 +104,11 @@ public class University extends javax.swing.JFrame {
         }
 
         btnAdd.setText("Add");
+        btnAdd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAddActionPerformed(evt);
+            }
+        });
 
         btnModify.setText("Modify");
 
@@ -169,6 +174,11 @@ public class University extends javax.swing.JFrame {
 
         }
     }//GEN-LAST:event_btnDeleteActionPerformed
+
+    private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
+        Student studentDialog = new Student(this,true);
+        studentDialog.setVisible(true);
+    }//GEN-LAST:event_btnAddActionPerformed
 
     public void refreshData(){
         entityManager.getTransaction().begin();
