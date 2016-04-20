@@ -111,6 +111,11 @@ public class University extends javax.swing.JFrame {
         });
 
         btnModify.setText("Modify");
+        btnModify.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnModifyActionPerformed(evt);
+            }
+        });
 
         btnDelete.setText("Delete");
         btnDelete.addActionListener(new java.awt.event.ActionListener() {
@@ -176,9 +181,25 @@ public class University extends javax.swing.JFrame {
     }//GEN-LAST:event_btnDeleteActionPerformed
 
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
-        Student studentDialog = new Student(this,true);
+        Student studentDialog = new Student(this,true, con, 0);
         studentDialog.setVisible(true);
+        refreshData();
     }//GEN-LAST:event_btnAddActionPerformed
+
+    private void btnModifyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModifyActionPerformed
+        int selectedRow = tblStudents.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this,
+                    "Select a row to modify",
+                    "No row selected", JOptionPane.WARNING_MESSAGE);
+        }else{
+            int stdId 
+                    = (int) tblStudents.getValueAt(selectedRow, 0);
+            Student studentDialog = new Student(this,true, con, stdId);
+            studentDialog.setVisible(true);
+            refreshData();
+        }
+    }//GEN-LAST:event_btnModifyActionPerformed
 
     public void refreshData(){
         entityManager.getTransaction().begin();

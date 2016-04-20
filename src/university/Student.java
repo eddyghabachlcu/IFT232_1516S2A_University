@@ -9,16 +9,59 @@ package university;
  *
  * @author HP
  */
+import java.sql.*;
+import javax.swing.JOptionPane;
+
 public class Student extends javax.swing.JDialog {
 
     /**
      * Creates new form Student
      */
-    public Student(java.awt.Frame parent, boolean modal) {
+    public static Connection con;
+    public static int stdId;
+
+    public Student(java.awt.Frame parent, boolean modal,
+            Connection con, int stdId) {
         super(parent, modal);
         initComponents();
         setTitle("Student form");
         setLocationRelativeTo(this);
+        this.con = con;
+        this.stdId = stdId;
+        if (stdId > 0) {
+            populate();
+        }
+    }
+
+    public void populate() {
+        try {
+            PreparedStatement pstmt
+                    = con.prepareStatement(
+                            "Select * From tbluniversity "
+                            + "where stdId = ?");
+            pstmt.setInt(1, stdId);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                txtFirstName.setText(rs.getString(2));
+                txtLastName.setText(rs.getString(3));
+                String gender = rs.getString(4);
+                if(gender.equals("Male")){
+                    rbMale.setSelected(true);
+                }else{
+                    rbFemale.setSelected(true);
+                }
+                txtAcademicYear.setText(
+                        String.valueOf(rs.getInt(5)));
+                boolean lebanese = rs.getBoolean(6);
+                if(lebanese){
+                    chkLebanese.setSelected(true);
+                }
+                txtEmail.setText(rs.getString(7));
+                txtAddress.setText(rs.getString(8));
+            }
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+        }
     }
 
     /**
@@ -36,13 +79,11 @@ public class Student extends javax.swing.JDialog {
         txtFirstName = new javax.swing.JTextField();
         txtLastName = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
-        jRadioButton1 = new javax.swing.JRadioButton();
-        jRadioButton2 = new javax.swing.JRadioButton();
+        rbMale = new javax.swing.JRadioButton();
+        rbFemale = new javax.swing.JRadioButton();
         jLabel4 = new javax.swing.JLabel();
-        cbxAcademicYear = new javax.swing.JComboBox<>();
         chkLebanese = new javax.swing.JCheckBox();
-        jLabel5 = new javax.swing.JLabel();
-        txtAge = new javax.swing.JTextField();
+        txtAcademicYear = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
         txtEmail = new javax.swing.JTextField();
         jLabel7 = new javax.swing.JLabel();
@@ -56,33 +97,69 @@ public class Student extends javax.swing.JDialog {
 
         jLabel2.setText("Last Name");
 
+        txtFirstName.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txtFirstNameKeyTyped(evt);
+            }
+        });
+
+        txtLastName.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txtLastNameKeyTyped(evt);
+            }
+        });
+
         jLabel3.setText("Gender");
 
-        rbgGender.add(jRadioButton1);
-        jRadioButton1.setSelected(true);
-        jRadioButton1.setText("Male");
+        rbgGender.add(rbMale);
+        rbMale.setSelected(true);
+        rbMale.setText("Male");
 
-        rbgGender.add(jRadioButton2);
-        jRadioButton2.setText("Female");
+        rbgGender.add(rbFemale);
+        rbFemale.setText("Female");
 
         jLabel4.setText("Academic Year");
-
-        cbxAcademicYear.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "1", "2", "3" }));
 
         chkLebanese.setSelected(true);
         chkLebanese.setText("Lebanese");
 
-        jLabel5.setText("Age");
+        txtAcademicYear.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                txtAcademicYearKeyPressed(evt);
+            }
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txtAcademicYearKeyReleased(evt);
+            }
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txtAcademicYearKeyTyped(evt);
+            }
+        });
 
         jLabel6.setText("Email");
+
+        txtEmail.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txtEmailKeyTyped(evt);
+            }
+        });
 
         jLabel7.setText("Address");
 
         txtAddress.setColumns(20);
         txtAddress.setRows(5);
+        txtAddress.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txtAddressKeyTyped(evt);
+            }
+        });
         jScrollPane1.setViewportView(txtAddress);
 
         btnSave.setText("Save");
+        btnSave.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSaveActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -109,19 +186,15 @@ public class Student extends javax.swing.JDialog {
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel3)
                                 .addGap(8, 8, 8)
-                                .addComponent(jRadioButton1)
+                                .addComponent(rbMale)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jRadioButton2)
-                                .addGap(18, 18, 18)
-                                .addComponent(jLabel4)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(cbxAcademicYear, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(rbFemale))
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(chkLebanese)
-                                .addGap(18, 18, 18)
-                                .addComponent(jLabel5)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jLabel4)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(txtAge, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(txtAcademicYear, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(jLabel7))
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
@@ -141,15 +214,13 @@ public class Student extends javax.swing.JDialog {
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
-                    .addComponent(jRadioButton1)
-                    .addComponent(jRadioButton2)
-                    .addComponent(jLabel4)
-                    .addComponent(cbxAcademicYear, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(rbMale)
+                    .addComponent(rbFemale))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(chkLebanese)
-                    .addComponent(jLabel5)
-                    .addComponent(txtAge, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtAcademicYear, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel4))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6)
@@ -165,6 +236,107 @@ public class Student extends javax.swing.JDialog {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void txtFirstNameKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtFirstNameKeyTyped
+        if (txtFirstName.getText().length() > 49) {
+            evt.consume();
+        }
+    }//GEN-LAST:event_txtFirstNameKeyTyped
+
+    private void txtLastNameKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtLastNameKeyTyped
+        if (txtLastName.getText().length() > 49) {
+            evt.consume();
+        }
+    }//GEN-LAST:event_txtLastNameKeyTyped
+
+    private void txtAcademicYearKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtAcademicYearKeyTyped
+        System.out.println(txtAcademicYear.getText().length());
+        if ((txtAcademicYear.getText().length() > 0)
+                || (!Character.isDigit(evt.getKeyChar()))
+                || (Integer.parseInt(
+                        String.valueOf(evt.getKeyChar())) > 4)
+                || (Integer.parseInt(
+                        String.valueOf(evt.getKeyChar())) == 0)) {
+            evt.consume();
+        }
+    }//GEN-LAST:event_txtAcademicYearKeyTyped
+
+    private void txtAcademicYearKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtAcademicYearKeyReleased
+
+    }//GEN-LAST:event_txtAcademicYearKeyReleased
+
+    private void txtAcademicYearKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtAcademicYearKeyPressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtAcademicYearKeyPressed
+
+    private void txtEmailKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtEmailKeyTyped
+        if (txtEmail.getText().length() > 99) {
+            evt.consume();
+        }
+    }//GEN-LAST:event_txtEmailKeyTyped
+
+    private void txtAddressKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtAddressKeyTyped
+        if (txtAddress.getText().length() > 199) {
+            evt.consume();
+        }
+    }//GEN-LAST:event_txtAddressKeyTyped
+
+    private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
+        if(txtFirstName.getText().equals("")){
+            JOptionPane.showMessageDialog(this, "Please fill first name",
+                    "Missing entry", JOptionPane.WARNING_MESSAGE);
+        }else if(txtLastName.getText().equals("")){
+            JOptionPane.showMessageDialog(this, "Please fill last name",
+                    "Missing entry", JOptionPane.WARNING_MESSAGE);
+        }else if(txtAcademicYear.getText().equals("")){
+            JOptionPane.showMessageDialog(this, "Please fill academic year",
+                    "Missing entry", JOptionPane.WARNING_MESSAGE);
+        }else{
+            String firstName = txtFirstName.getText();
+            String lastName = txtLastName.getText();
+            String gender;
+            if(rbMale.isSelected()){
+                gender = "Male";
+            }else{
+                gender = "Female";
+            }
+            boolean lebanese = chkLebanese.isSelected();
+            int academicYear = Integer.parseInt(txtAcademicYear.getText().toString());
+            String email = txtEmail.getText();
+            String address = txtAddress.getText();
+            try{
+                Statement stmt = con.createStatement();
+                if(stdId==0){
+                    stmt.execute("Insert into "
+                            + "tbluniversity (stdFirstName, "
+                            + "stdLastName,"
+                            + "stdGender, stdAcademicYear, "
+                            + "stdLebanese, stdEmail, stdAddress) "
+                            + "values ('"+ firstName +"', "
+                            + "'"+ lastName +"', "
+                            + "'"+ gender +"', "
+                            + academicYear +", "
+                            + lebanese +", "
+                            + "'"+ email +"', "
+                            + "'"+ address +"')");
+                }else{
+                    stmt.execute("Update tbluniversity set "
+                            + "stdFirstName = '" + firstName + "',"
+                            + "stdLastName = '" + lastName + "',"
+                            + "stdGender = '" + gender + "',"
+                            + "stdAcademicYear = " + academicYear + ","
+                            + "stdLebanese = " + lebanese + ","
+                            + "stdEmail = '" + email + "',"
+                            + "stdAddress = '" + address + "' "
+                            + "where stdId = " + stdId);
+                }
+                this.dispose();
+            }catch(SQLException ex){
+                System.err.println(ex.getMessage());
+            }
+        }
+    
+    }//GEN-LAST:event_btnSaveActionPerformed
 
     /**
      * @param args the command line arguments
@@ -196,7 +368,7 @@ public class Student extends javax.swing.JDialog {
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                Student dialog = new Student(new javax.swing.JFrame(), true);
+                Student dialog = new Student(new javax.swing.JFrame(), true, con, stdId);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {
@@ -210,21 +382,19 @@ public class Student extends javax.swing.JDialog {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnSave;
-    private javax.swing.JComboBox<String> cbxAcademicYear;
     private javax.swing.JCheckBox chkLebanese;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
-    private javax.swing.JRadioButton jRadioButton1;
-    private javax.swing.JRadioButton jRadioButton2;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JRadioButton rbFemale;
+    private javax.swing.JRadioButton rbMale;
     private javax.swing.ButtonGroup rbgGender;
+    private javax.swing.JTextField txtAcademicYear;
     private javax.swing.JTextArea txtAddress;
-    private javax.swing.JTextField txtAge;
     private javax.swing.JTextField txtEmail;
     private javax.swing.JTextField txtFirstName;
     private javax.swing.JTextField txtLastName;
