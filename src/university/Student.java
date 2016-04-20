@@ -330,6 +330,7 @@ public class Student extends javax.swing.JDialog {
                             + "stdAddress = '" + address + "' "
                             + "where stdId = " + stdId);
                 }
+                
                 this.dispose();
             }catch(SQLException ex){
                 System.err.println(ex.getMessage());
